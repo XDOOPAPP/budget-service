@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  budget-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fepa_budget_service
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      DATABASE_URL: postgres://budget_user:budget_password@budget-db:5432/fepa_budget?schema=public
+    depends_on:
+      budget-db:
+        condition: service_healthy
+    ports:
+      - '3003:3003'
+    command: >-
+      sh -c "npx prisma db push && node dist/main"
+    restart: unless-stopped
+
+  budget-db:
+    image: postgres:17-alpine
+    container_name: fepa_budget_db
+    environment:
+      POSTGRES_DB: fepa_budget
+      POSTGRES_USER: budget_user
+      POSTGRES_PASSWORD: budget_password
+    volumes:
+      - budget-db-data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U budget_user -d fepa_budget']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  budget-db-data:
