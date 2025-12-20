@@ -37,5 +37,17 @@ services:
       retries: 5
       start_period: 10s
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: fepa_budget_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5051:80'
+    depends_on:
+      budget-db:
+        condition: service_started
+
 volumes:
   budget-db-data:
