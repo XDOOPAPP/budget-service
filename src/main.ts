@@ -6,14 +6,17 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '0.0.0.0',
-        port: parseInt(process.env.PORT ?? '3003', 10),
+        urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
+        queue: 'budget_queue',
+        queueOptions: {
+          durable: true,
+        },
       },
     },
   );
   await app.listen();
-  console.log(`🚀 Budget Microservice is listening on port: ${process.env.PORT ?? 3003}`);
+  console.log(`🚀 Budget Microservice is listening on RabbitMQ queue: budget_queue`);
 }
 bootstrap();
