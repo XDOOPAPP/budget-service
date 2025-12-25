@@ -1,19 +1,26 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 import { BudgetsService } from './budgets.service';
 import { BudgetsController } from './budgets.controller';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'EXPENSE_SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: '0.0.0.0',
-          port: 3002, // Expense Service Port
-        },
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'expense_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
+        }),
+        inject: [ConfigService],
       },
     ]),
   ],
