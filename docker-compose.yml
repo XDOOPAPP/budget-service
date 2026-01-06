@@ -16,15 +16,11 @@ services:
 
     networks:
       - fepa-network
-    volumes:
-      - .:/app
-      - /app/node_modules
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
 
 networks:
   fepa-network:
     name: api-gateway_fepa-network
     external: true
-
-volumes:
-  postgres_data:
-  rabbitmq_data:
