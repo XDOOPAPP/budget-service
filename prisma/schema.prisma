@@ -9,7 +9,7 @@ datasource db {
 
 model Budget {
   id          String    @id @default(uuid()) @db.Uuid
-  userId      String    @db.Uuid
+  userId      String // Changed from @db.Uuid to String to support MongoDB ObjectIds
   name        String
   category    String?   @db.Text
   limitAmount Decimal   @db.Decimal(14, 2)

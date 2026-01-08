@@ -12,6 +12,9 @@ RUN npm ci
 
 COPY . .
 
+# Force generate prisma client
+RUN npx prisma generate
+
 RUN npm run build
 
 # Production image
@@ -31,4 +34,4 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3003
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]

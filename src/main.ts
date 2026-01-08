@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import { RpcExceptionFilter } from './common/filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -16,6 +17,10 @@ async function bootstrap() {
       },
     },
   );
+
+  // Global exception filter for RPC
+  app.useGlobalFilters(new RpcExceptionFilter());
+
   await app.listen();
   console.log(`🚀 Budget Microservice is listening on RabbitMQ queue: budget_queue`);
 }
