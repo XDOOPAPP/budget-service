@@ -16,16 +16,19 @@ export class BudgetsService {
     return this.prisma.budget.create({
       data: {
         ...createBudgetDto,
+        startDate: createBudgetDto.startDate ? new Date(createBudgetDto.startDate) : null,
+        endDate: createBudgetDto.endDate ? new Date(createBudgetDto.endDate) : null,
         userId,
       },
     });
   }
 
   async findAll(userId: string) {
-    return this.prisma.budget.findMany({
+    const budgets = await this.prisma.budget.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+    return budgets.map(b => this.transformBudget(b));
   }
 
   async findOne(id: string, userId: string) {
@@ -35,14 +38,18 @@ export class BudgetsService {
     if (!budget) {
       throw new NotFoundException(`Budget with ID ${id} not found`);
     }
-    return budget;
+    return this.transformBudget(budget);
   }
 
   async update(id: string, updateBudgetDto: UpdateBudgetDto, userId: string) {
     const budget = await this.findOne(id, userId);
     return this.prisma.budget.update({
       where: { id: budget.id },
-      data: updateBudgetDto,
+      data: {
+        ...updateBudgetDto,
+        startDate: updateBudgetDto.startDate ? new Date(updateBudgetDto.startDate) : undefined,
+        endDate: updateBudgetDto.endDate ? new Date(updateBudgetDto.endDate) : undefined,
+      },
     });
   }
 
@@ -85,6 +92,13 @@ export class BudgetsService {
         percentage: parseFloat(percentage.toFixed(2)),
         status: totalSpent > limit ? 'EXCEEDED' : 'SAFE',
       },
+    };
+  }
+
+  private transformBudget(budget: any) {
+    return {
+      ...budget,
+      limitAmount: budget.limitAmount ? Number(budget.limitAmount) : 0,
     };
   }
 }
