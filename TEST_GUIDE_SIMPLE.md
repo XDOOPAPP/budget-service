@@ -3,7 +3,7 @@
 Tài liệu này hướng dẫn cách chạy và test Budget Service từ lúc mới clone code về.
 
 ## 1. Khởi chạy hệ thống (Docker)
---------NHỚ CHẠY EXPENSE-SERVICE TRƯỚC ----------
+-------- NHỚ CHẠY EXPENSE-SERVICE TRƯỚC ----------
 
 Mở terminal và chạy theo thứ tự:
 
@@ -52,8 +52,7 @@ docker exec -it budget-service npx prisma db push
 ### Bước 2: Tạo Ngân Sách (Create Budget)
 *   **Method:** `POST`
 *   **URL:** `http://localhost:3000/api/v1/budgets`
-*   **Headers:** 
-    *   `Authorization`: `Bearer <Dán_Token_Vào_Đây>`
+*   **Headers:** `Authorization`: `Bearer <Token>`
 *   **Body (JSON):**
     ```json
     {
@@ -70,7 +69,29 @@ docker exec -it budget-service npx prisma db push
 *   **URL:** `http://localhost:3000/api/v1/budgets`
 *   **Headers:** `Authorization`: `Bearer <Token>`
 
-### Bước 4: Kiểm tra tiến độ ngân sách (Progress)
+### Bước 4: Xem chi tiết một ngân sách
+*   **Method:** `GET`
+*   **URL:** `http://localhost:3000/api/v1/budgets/<ID_CỦA_BUDGET>`
+*   **Headers:** `Authorization`: `Bearer <Token>`
+
+### Bước 5: Cập nhật ngân sách
+*   **Method:** `PUT`
+*   **URL:** `http://localhost:3000/api/v1/budgets/<ID_CỦA_BUDGET>`
+*   **Headers:** `Authorization`: `Bearer <Token>`
+*   **Body (JSON):**
+    ```json
+    {
+      "limitAmount": 6000000,
+      "name": "Ăn uống tháng 1 (Tăng hạn mức)"
+    }
+    ```
+
+### Bước 6: Xóa ngân sách
+*   **Method:** `DELETE`
+*   **URL:** `http://localhost:3000/api/v1/budgets/<ID_CỦA_BUDGET>`
+*   **Headers:** `Authorization`: `Bearer <Token>`
+
+### Bước 7: Kiểm tra tiến độ ngân sách (Progress)
 *   **Method:** `GET`
 *   **URL:** `http://localhost:3000/api/v1/budgets/<ID_CỦA_BUDGET>/progress`
 *   **Headers:** `Authorization`: `Bearer <Token>`
@@ -80,6 +101,6 @@ docker exec -it budget-service npx prisma db push
 ## 💡 Lưu ý quan trọng
 *   **Lỗi 500:** Nếu gặp lỗi này, hãy chạy lệnh `docker logs budget-service` để xem lỗi.
 *   **Cổng kết nối:** 
-    *   API Gateway: `3000` (Chúng ta dùng cổng này để test tập trung thông qua Gateway).
+    *   API Gateway: `3000` (Sử dụng để test tập trung).
     *   Budget Service Port (Internal): `3003`.
     *   RabbitMQ: `http://localhost:15672` (fepa/fepa123).
