@@ -13,7 +13,10 @@ import { PrismaService } from '../prisma/prisma.service';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
-            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            urls: [
+              configService.get<string>('RABBITMQ_URL') ||
+                'amqp://localhost:5672',
+            ],
             queue: 'expense_queue',
             queueOptions: {
               durable: true,
@@ -27,4 +30,4 @@ import { PrismaService } from '../prisma/prisma.service';
   controllers: [BudgetsController],
   providers: [BudgetsService, PrismaService],
 })
-export class BudgetsModule { }
+export class BudgetsModule {}

@@ -10,14 +10,18 @@ export class BudgetsService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject('EXPENSE_SERVICE') private readonly expenseClient: ClientProxy,
-  ) { }
+  ) {}
 
   async create(createBudgetDto: CreateBudgetDto, userId: string) {
     return this.prisma.budget.create({
       data: {
         ...createBudgetDto,
-        startDate: createBudgetDto.startDate ? new Date(createBudgetDto.startDate) : null,
-        endDate: createBudgetDto.endDate ? new Date(createBudgetDto.endDate) : null,
+        startDate: createBudgetDto.startDate
+          ? new Date(createBudgetDto.startDate)
+          : null,
+        endDate: createBudgetDto.endDate
+          ? new Date(createBudgetDto.endDate)
+          : null,
         userId,
       },
     });
@@ -28,7 +32,7 @@ export class BudgetsService {
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
-    return budgets.map(b => this.transformBudget(b));
+    return budgets.map((b) => this.transformBudget(b));
   }
 
   async findOne(id: string, userId: string) {
@@ -47,8 +51,12 @@ export class BudgetsService {
       where: { id: budget.id },
       data: {
         ...updateBudgetDto,
-        startDate: updateBudgetDto.startDate ? new Date(updateBudgetDto.startDate) : undefined,
-        endDate: updateBudgetDto.endDate ? new Date(updateBudgetDto.endDate) : undefined,
+        startDate: updateBudgetDto.startDate
+          ? new Date(updateBudgetDto.startDate)
+          : undefined,
+        endDate: updateBudgetDto.endDate
+          ? new Date(updateBudgetDto.endDate)
+          : undefined,
       },
     });
   }
@@ -79,7 +87,16 @@ export class BudgetsService {
       this.expenseClient.send('expense.summary', query),
     );
 
-    const totalSpent = Number(expenseSummary?.totalAmount || 0);
+    const summaryPayload =
+      expenseSummary &&
+      typeof expenseSummary === 'object' &&
+      'data' in expenseSummary
+        ? (expenseSummary as { data: any }).data
+        : expenseSummary;
+
+    const totalSpent = Number(
+      summaryPayload?.total ?? summaryPayload?.totalAmount ?? 0,
+    );
     const limit = Number(budget.limitAmount);
     const remaining = limit - totalSpent;
     const percentage = limit > 0 ? (totalSpent / limit) * 100 : 0;
