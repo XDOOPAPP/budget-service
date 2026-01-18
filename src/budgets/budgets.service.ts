@@ -101,4 +101,46 @@ export class BudgetsService {
       limitAmount: budget.limitAmount ? Number(budget.limitAmount) : 0,
     };
   }
+
+  // ========== ADMIN METHODS ==========
+
+  async getAdminStats() {
+    const [totalBudgets, budgets] = await Promise.all([
+      this.prisma.budget.count(),
+      this.prisma.budget.findMany({
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    // Get unique users
+    const uniqueUsers = await this.prisma.budget.groupBy({
+      by: ['userId'],
+    });
+
+    // Calculate totals
+    const totalLimit = budgets.reduce((sum, b) => sum + Number(b.limitAmount || 0), 0);
+
+    // Group by category
+    const byCategory = {};
+    budgets.forEach((b) => {
+      const cat = b.category || 'uncategorized';
+      if (!byCategory[cat]) {
+        byCategory[cat] = { count: 0, totalLimit: 0 };
+      }
+      byCategory[cat].count++;
+      byCategory[cat].totalLimit += Number(b.limitAmount || 0);
+    });
+
+    return {
+      totalBudgets,
+      totalUsers: uniqueUsers.length,
+      totalLimit,
+      byCategory: Object.entries(byCategory).map(([category, data]: [string, any]) => ({
+        category,
+        count: data.count,
+        totalLimit: data.totalLimit,
+      })),
+      recentBudgets: budgets.slice(0, 10).map((b) => this.transformBudget(b)),
+    };
+  }
 }

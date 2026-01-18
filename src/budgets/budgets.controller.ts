@@ -39,4 +39,10 @@ export class BudgetsController {
   progress(@Payload() payload: { id: string; userId: string }) {
     return this.budgetsService.progress(payload.id, payload.userId);
   }
+
+  // Admin endpoints
+  @MessagePattern('budget.admin_stats')
+  getAdminStats() {
+    return this.budgetsService.getAdminStats();
+  }
 }
