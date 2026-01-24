@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   budget-service:
     build:
@@ -14,7 +12,6 @@ services:
       - DATABASE_URL=postgresql://fepa:fepa123@fepa-postgres:5432/fepa_budget
       - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
       - JWT_SECRET=${JWT_SECRET:-fepa-key}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
     restart: on-failure
     networks:
